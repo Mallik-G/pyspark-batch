@@ -1,7 +1,22 @@
+#!/usr/bin/env python
+# Copyright (c) 2017 Alexander Hurd
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
 import argparse
 import json
 import logging
 import os
+from benchmark import benchmark
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +35,7 @@ def main():
     # enable debugging
     if args.debug:
         logger.setLevel(logging.DEBUG)
+        logging.getLogger('benchmark').setLevel(logging.DEBUG)
 
     # open config and parse
     with open(args.conf) as data_file:
@@ -49,11 +65,16 @@ def main():
         files = [conf['project_path'] + "/" + p for p in conf['pyfiles']]
         pyfiles = "--py-files %s" % ",".join(files)
 
+    # build spark-submit command
+    cmd_raw = "{} && spark-submit {} {} {}/{}".format(envs, params, pyfiles, conf['project_path'], conf['script'])
+
     # iterate paramters
     for r in args.params:
-        cmd = "{} && spark-submit {} {} {}/{}".format(envs, params, pyfiles, conf['project_path'], conf['script'])
-        cmd = cmd.format(**r)  # add parameter
-        os.system(cmd)
+        cmd = cmd_raw.format(**r)  # add parameter
+
+        with benchmark(cmd):
+            logger.info(cmd)
+            os.system(cmd) # run shell command
 
 
 if __name__ == "__main__":
