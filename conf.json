@@ -1,0 +1,20 @@
+{
+   "project_path":"/home/user/PycharmProjects/pyspark-batch",
+   "script":"test.py {arg1}",
+   "env":[
+      "SPARK_HOME=/usr/lib/spark",
+      "PYTHONPATH=''",
+      "PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH",
+      "PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.9-src.zip:$PYTHONPATH"
+   ],
+   "params":[
+      "--master yarn",
+      "--deploy-mode cluster",
+      "--num-executors 2",
+      "--executor-cores 2"
+   ],
+   "pyfiles":[
+      "test.py",
+      "util.py"
+   ]
+}
