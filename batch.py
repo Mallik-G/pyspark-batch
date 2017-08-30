@@ -72,9 +72,10 @@ def main():
     for r in args.params:
         cmd = cmd_raw.format(**r)  # add parameter
 
+        # run shell command within benchmark
         with benchmark(cmd):
             logger.info(cmd)
-            os.system(cmd) # run shell command
+            os.system(cmd)
 
 
 if __name__ == "__main__":
