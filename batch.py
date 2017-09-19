@@ -24,9 +24,10 @@ logger = logging.getLogger(__name__)
 def main():
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", action="store_true", help="Enable Debugging")
+    parser.add_argument('-d', "--debug", action="store_true", help="Enable Debugging")
     parser.add_argument('-c', '--conf', required=True, help="JSON Config File")
-    parser.add_argument('-p', '--params', required=True, type=json.loads, help="JSON parameters")  # JSON parser
+    parser.add_argument('-pp', '--project-path', required=False, help="Project Path")
+    parser.add_argument('-p', '--params', required=False, type=json.loads, help="JSON parameters")  # JSON parser
     args = parser.parse_args()
 
     # configure logging
@@ -42,8 +43,13 @@ def main():
         conf = json.load(data_file)
 
     # check for project_path
-    if 'project_path' not in conf:
-        raise Exception("missing 'project_path' in conf")
+    if args.project_path is None:
+        if 'project_path' not in conf:
+            raise Exception("missing 'project_path' in conf or command line")
+        else:
+            project_path = conf['project_path']
+    else:
+        project_path = args.project_path
 
     # check for script
     if 'script' not in conf:
@@ -62,11 +68,11 @@ def main():
     # parse pyfiles variables
     pyfiles = ""
     if 'pyfiles' in conf:
-        files = [conf['project_path'] + "/" + p for p in conf['pyfiles']]
+        files = [project_path + "/" + p for p in conf['pyfiles']]
         pyfiles = "--py-files %s" % ",".join(files)
 
     # build spark-submit command
-    cmd_raw = "{} && spark-submit {} {} {}/{}".format(envs, params, pyfiles, conf['project_path'], conf['script'])
+    cmd_raw = "{} && spark-submit {} {} {}/{}".format(envs, params, pyfiles, project_path, conf['script'])
 
     # iterate paramters
     for r in args.params:
