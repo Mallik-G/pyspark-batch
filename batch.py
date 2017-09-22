@@ -72,7 +72,7 @@ def main():
         pyfiles = "--py-files %s" % ",".join(files)
 
     # build spark-submit command
-    cmd_raw = "{} && spark-submit {} {} {}/{}".format(envs, params, pyfiles, project_path, conf['script'])
+    cmd_raw = "{} spark-submit {} {} {}/{}".format(envs, params, pyfiles, project_path, conf['script'])
 
     # iterate paramters
     for r in args.params:
